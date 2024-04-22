@@ -1,0 +1,221 @@
+/* ShippingForm.css */
+
+/* Styling for the form container */
+.shipping-form {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 50px;
+  border-radius: 10px;
+  background-color: #f8f9fa;
+  box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.1);
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-gap: 15px; /* Reduced gap */
+}
+
+/* Styling for form sections */
+.shipping-form .form-section {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Styling for labels */
+.shipping-form label {
+  font-size: 18px;
+  margin-bottom: 5px; /* Reduced margin */
+}
+
+/* Styling for input fields and select dropdowns */
+.shipping-form input[type="text"],
+.shipping-form input[type="number"],
+.shipping-form select {
+  padding: 12px;
+  border: 1px solid #ced4da;
+  border-radius: 5px;
+  font-size: 16px;
+  margin-bottom: 10px; /* Reduced margin */
+}
+
+/* Styling for input fields and select dropdowns when focused */
+.shipping-form input[type="text"]:focus,
+.shipping-form input[type="number"]:focus,
+.shipping-form select:focus {
+  outline: none;
+  border-color: #007bff;
+}
+
+/* Styling for the submit button */
+.submit-button {
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  padding: 8px 16px; /* Adjust padding to make it smaller */
+  font-size: 14px; /* Adjust font size to make it smaller */
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  position: absolute;
+  bottom: 20px; /* Adjust positioning as needed */
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+/* Styling for the submit button on hover */
+.submit-button:hover {
+  background-color: #0056b3;
+}
+
+/* Styling for select dropdowns */
+.shipping-form select {
+  padding-right: 40px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='6' viewBox='0 0 12 6'%3E%3Cpath d='M1.293 0.293a1 1 0 0 1 1.414 0L6 3.586 9.293.293a1 1 0 0 1 1.414 1.414l-4 4a1 1 0 0 1-1.414 0l-4-4a1 1 0 0 1 0-1.414z' fill='%23000'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 12px;
+}
+
+.chargeable-weight {
+  /* Default styles */
+}
+
+@media screen and (max-width: 768px) {
+  .chargeable-weight {
+    /* Styles for screens smaller than 768px */
+    margin-top: 20px;
+  }
+}
+
+@media screen and (max-width: 576px) {
+  .chargeable-weight {
+    /* Styles for screens smaller than 576px */
+    margin-top: 10px;
+  }
+}
+
+/* Media query for smaller screens */
+@media screen and (max-width: 768px) {
+  .custom-service {
+    margin: 10px 0; /* Adjust spacing for smaller screens */
+  }
+}
+.chargeable-weight {
+  margin-left: 20px; /* Align to the left */
+  margin-top: 30px; /* Add margin space from the top */
+  font-size: 18px; /* Adjust font size */
+}
+
+@media screen and (max-width: 768px) {
+  .chargeable-weight {
+    margin-left: 20px; /* Adjust margin for smaller screens */
+    margin-right: 20px; /* Adjust margin for smaller screens */
+  }
+}
+
+.disclaimer {
+  margin-top: 50px;
+  display: flex;
+  align-items: center; /* Aligns content vertically in the center */
+}
+.disclaimer h2{
+  margin-top: -10px;
+  margin-left:100px;
+}
+.subheading {
+  margin-left: 20px; /* Adjust this value as per your preference for spacing between h2 and h6 */
+}
+
+
+/* CSS for dynamic Table*/
+
+
+.custom-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 20px;
+}
+
+.custom-service-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.custom-service {
+  margin: 0 10px; /* Adjust spacing between services */
+  max-width: 400px; /* Set maximum width for each service */
+  margin-bottom: 20px; /* Add margin at the bottom of each service */
+}
+
+.custom-table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.custom-table td,
+.custom-table th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+
+.custom-table tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+
+.custom-table tr:hover {
+  background-color: #ddd;
+}
+
+
+.checkbox-save-container {
+  position: relative; /* Relative positioning to its parent */
+  display: flex;
+  justify-content: flex-end; /* Align items to the right */
+  margin-top: 20px; /* Adjust as needed */
+  margin-right: 20%; /* Adjust as needed */
+}
+
+.checkbox-save-container label {
+  margin-right: 10px; /* Add space between the checkbox and label */
+}
+
+@media (max-width: 768px) {
+  .checkbox-save-container {
+    margin-top: 5%; /* Adjust margin for smaller screens */
+    margin-right: 5%; /* Adjust margin for smaller screens */
+  }
+}
+
+
+.recalculate-button-container {
+  position: relative; /* Relative positioning to its parent */
+  display: flex;
+  justify-content: flex-end; 
+  margin-top: -5%; /* Adjust margin as needed */
+  margin-right: 20%; /* Align the button to the right */
+}
+
+.recalculate-button-container .btn {
+  /* Button styles */
+  background-color: #007bff;
+  color: #ffffff;
+  border: none;
+  border-radius: 5px;
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  margin-left: 200px;
+}
+
+.recalculate-button-container .btn:hover {
+  /* Hover styles */
+  background-color: #0056b3;
+}
+
+@media (max-width: 768px) {
+  .recalculate-button-container {
+    margin-top: 10px; /* Adjust margin for smaller screens */
+    text-align: center; /* Center-align the button for smaller screens */
+  }
+}

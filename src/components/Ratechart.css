@@ -1,0 +1,47 @@
+/* Add general styles here */
+
+/* Container styles */
+.table-container {
+    margin-top: 20px;
+    margin-bottom: 20px;
+  }
+  
+  /* Table styles */
+  .table {
+    border-radius: 10px;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto; /* Enable horizontal scrolling on small screens */
+  }
+  
+  /* Table cell styles */
+  th,
+  td {
+    border: 1px solid grey;
+    padding: 8px;
+  }
+  
+  /* Responsive classes */
+  @media (max-width: 576px) { /* Extra small devices (phones) */
+    /* Adjust table font size for extra small devices */
+    .table {
+      font-size: 12px;
+    }
+  }
+  
+  /* Add specific styles for small devices if needed */
+  @media (min-width: 576px) { /* Small devices (landscape phones) */
+  }
+  
+  /* Add specific styles for medium devices if needed */
+  @media (min-width: 768px) { /* Medium devices (tablets) */
+  }
+  
+  /* Add specific styles for large devices if needed */
+  @media (min-width: 992px) { /* Large devices (desktops) */
+  }
+  
+  /* Add specific styles for extra large devices if needed */
+  @media (min-width: 1200px) { /* Extra large devices (large desktops) */
+  }
+  
