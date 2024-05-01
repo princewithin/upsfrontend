@@ -21,6 +21,11 @@ function Login() {
         // Redirect the user or perform other actions upon successful login
         console.log('User logged in successfully', user);
         localStorage.setItem('user', JSON.stringify(user));
+        const userdata = await axios.post(
+          "http://localhost:5000/api/userData",
+          { user }
+        );
+        console.log(userdata.data);
         navigate("/");
     } catch (error) {
         // setError(error.message); // Display the error message to the user

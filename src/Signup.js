@@ -9,7 +9,7 @@ import { signup } from "./firebase";
 function Signup() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [workspace, setWorkspace] = useState("OrangeStar");
+  const [workspace, setWorkspace] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [signupSuccess, setSignupSuccess] = useState(false);
@@ -24,14 +24,14 @@ function Signup() {
     // Validate password before submitting the form
     if (validatePassword(password)) {  // Assuming validatePassword needs a parameter
         try {
-            const user = await signup(email, password);
+            const user = await signup(email, password, {workspace});
             console.log("User created successfully", user);
 
             // Set success state and clear form inputs
             setSignupSuccess(true);
             setEmail('');
             setPassword('');
-            // setWorkspace('');
+            setWorkspace('');
             setName('');
 
             // Optionally navigate to another route on success
@@ -39,7 +39,6 @@ function Signup() {
 
         } catch (error) {
             console.error('Error creating user:', error);
-            console.log('hello')
             // console.log(setSignupSuccess(true))
             setEmailExists(true);
 
@@ -138,8 +137,8 @@ const handlePasswordChange = (e) => {
               onChange={handleWorkspaceChange}
               value={workspace}
               required
-              readOnly={true}
-              style={{ pointerEvents: "none" }}
+              // readOnly={true}
+              // style={{ pointerEvents: "none" }}
             />
           </div>
           <div className="mb-3">

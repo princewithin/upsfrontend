@@ -1,6 +1,6 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
-import { getFirestore, collection, addDoc, getDoc, doc } from 'firebase/firestore'; // Import Firestore related functions
+import { getFirestore, collection, addDoc, getDoc, doc, setDoc} from 'firebase/firestore'; // Import Firestore related functions
  
  
 const firebaseConfig = {
@@ -20,22 +20,43 @@ const db = getFirestore(app); // Get auth instance
 // Export auth and createUserWithEmailAndPassword without curly braces
 export { auth, createUserWithEmailAndPassword, signInWithEmailAndPassword };
  
-export const signup = async (email, password) => {
+export const signup = async (email, password, userData) => {
+  // try {
+  //     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+  //     const user = userCredential.user;
+ 
+  //     // Save user data to Firestore
+  //     await addDoc(collection(db, 'users'), {
+  //         uid: user.uid,
+  //         email: user.email,
+  //         workspace: userData.workspace
+  //       //   ...userData // Additional user data (e.g., name, age, etc.)
+  //     });
+ 
+  //     return user;
+  // } catch (error) {
+  //     console.error('Signup error:', error.code, error.message);
+  //     throw error;
+  // }
   try {
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      const user = userCredential.user;
- 
-      // Save user data to Firestore
-      await addDoc(collection(db, 'users'), {
-          uid: user.uid,
-          email: user.email,
-        //   ...userData // Additional user data (e.g., name, age, etc.)
-      });
- 
-      return user;
+    // Create user in Firebase Authentication
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    const user = userCredential.user;
+
+    // Use UID as document name in Firestore
+    const userDocRef = doc(db, "users", user.uid);
+
+    // Set user data in Firestore document
+    await setDoc(userDocRef, {
+      email: user.email,
+      uid: user.uid,
+      workspace: userData.workspace
+      // Add any other user data you want to store
+    });
+
+    console.log("User signed up successfully:", user);
   } catch (error) {
-      console.error('Signup error:', error.code, error.message);
-      throw error;
+    console.error("Signup failed:", error);
   }
 };
  

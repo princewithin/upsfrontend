@@ -7,7 +7,7 @@ import { Link, useNavigate } from "react-router-dom";
 
 function Nav({ Toggle, setCurrentComponent, session }) {
   const [showManageWorkspace, setShowManageWorkspace] = useState(false); // State to track if Manage Workspace dropdown is open
-  const [workspaceName, setWorkspaceName] = useState(''); // State to store workspace name
+  // const [workspaceName, setWorkspaceName] = useState(''); // State to store workspace name
   const workspaceRef = useRef(null); // Ref to the workspace dropdown
   const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem('user'));
@@ -16,21 +16,7 @@ function Nav({ Toggle, setCurrentComponent, session }) {
     localStorage.removeItem('user');  // Remove user info from localStorage
     navigate('/login');  // Optionally navigate the user to the login page
 };
-  // useEffect(() => {
-  //   // Fetch workspace name from the API
-  //   const fetchWorkspaceName = async () => {
-  //     try {
-  //       const response = await fetch('your_api_endpoint_here');
-  //       const data = await response.json();
-  //       // Assuming the response contains the workspace name under a key like 'name'
-  //       setWorkspaceName(data.name);
-  //     } catch (error) {
-  //       console.error('Error fetching workspace name:', error);
-  //     }
-  //   };
-
-  //   fetchWorkspaceName();
-  // }, []); // Empty dependency array to run the effect only once when the component mounts
+  
 
   useEffect(() => {
     // Function to handle clicks outside the workspace dropdown
@@ -95,6 +81,7 @@ function Nav({ Toggle, setCurrentComponent, session }) {
       );
     }
   };
+  const workspaceName = user && user.userData && user.userData.workspace ? user.userData.workspace : "";
 
   return (
     <nav className="navbar navbar-expand-sm navbar-dark bg-transparent">
@@ -103,27 +90,24 @@ function Nav({ Toggle, setCurrentComponent, session }) {
         <i className='bi bi-justify'></i>
       </button>
       <div className="collapse navbar-collapse" id="collapsibleNavId">
-        <ul className="navbar-nav me-auto mt-2 mt-lg-0">
-        </ul>
-        <div className="ms-auto" style={{ marginRight: '1rem' }}>
-          <ul className="navbar-nav mt-2 mt-lg-0">
-            <li className="nav-item dropdown">
-              <a className="nav-link dropdown-toggle text-black" href="#" id="dropdownId" onClick={toggleDropdown}>
-                Workspace
+      <ul className="navbar-nav me-auto mt-2 mt-lg-0"></ul>
+      <div className="ms-auto" style={{ marginRight: '1rem' }}>
+        <ul className="navbar-nav mt-2 mt-lg-0">
+          <li className="nav-item dropdown">
+            <a className="nav-link dropdown-toggle text-black" href="#" id="dropdownId" onClick={toggleDropdown}>
+              {workspaceName}
+            </a>
+            <div ref={workspaceRef} className={`dropdown-menu${showManageWorkspace ? ' show' : ''}`} aria-labelledby="dropdownId">
+              <a className="dropdown-item" href="#">{workspaceName}</a>
+              <a className="dropdown-item" href="#" onClick={handleManageWorkspaceClick}>
+                <FontAwesomeIcon icon={faCog}/> Manage Workspace
               </a>
-              <div ref={workspaceRef} className={`dropdown-menu${showManageWorkspace ? ' show' : ''}`} aria-labelledby="dropdownId">
-                {/* When Workspace comes form the api, uncomment this line */}
-                {/* <a className="dropdown-item" href="#">{workspaceName}</a> */}
-                <a className="dropdown-item" href="#">Orange Star</a>
-                <a className="dropdown-item" href="#" onClick={handleManageWorkspaceClick}>
-                  <FontAwesomeIcon icon={faCog}/> Manage Workspace
-                </a>
-              </div>
-            </li>
-            {renderUserDropdown()}
-          </ul>
-        </div>
+            </div>
+          </li>
+          {renderUserDropdown()}
+        </ul>
       </div>
+    </div>
     </nav>
   );
 }

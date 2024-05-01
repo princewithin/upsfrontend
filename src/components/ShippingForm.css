@@ -19,6 +19,40 @@
   flex-direction: column;
 }
 
+.disclaimer {
+  background-color: #f7f7f7;
+  padding: 20px;
+  border: 1px solid #ddd;
+  margin-bottom: 20px;
+}
+ 
+.heading {
+  font-size: 24px;
+  margin-bottom: 10px;
+}
+ 
+.subheading {
+  font-size: 16px;
+}
+ 
+@media (max-width: 768px) {
+  .heading {
+    font-size: 20px;
+  }
+  .subheading {
+    font-size: 14px;
+  }
+}
+ 
+@media (max-width: 576px) {
+  .heading {
+    font-size: 18px;
+  }
+  .subheading {
+    font-size: 12px;
+  }
+}
+
 /* Styling for labels */
 .shipping-form label {
   font-size: 18px;

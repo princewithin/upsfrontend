@@ -9,7 +9,7 @@ import Nav from './Nav';
 
 function DApp() {
     const [toggle, setToggle] = useState(true);
-    const [currentComponent, setCurrentComponent] = useState(null);
+    const [currentComponent, setCurrentComponent] = useState('DashboardComponent');
 
     const Toggle = () => {
         setToggle(!toggle);

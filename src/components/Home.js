@@ -13,6 +13,7 @@ function Home({ currentComponent }) {
 
     return (
         <div className='px-3'>
+            
             {/* Render components based on authentication */}
             {currentComponent === 'DashboardComponent' && <DashboardComponent />}
             {currentComponent === 'CalculateComponent' && (authenticated ? <ShippingForm /> : <div>Access Denied. Please log in.</div>)}

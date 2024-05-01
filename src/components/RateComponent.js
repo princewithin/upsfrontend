@@ -83,6 +83,7 @@ const RateComponent = () => {
   //     </table>
   //   </div>
   // );
+}
 
 
 export default RateComponent;

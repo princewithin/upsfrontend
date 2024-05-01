@@ -3,10 +3,14 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "./ShippingForm.css";
 import axios from "axios";
 import Select from "react-select";
+import {useLocation} from "react-router-dom"
+
 
 const ShippingForm = () => {
+  const location = useLocation();
+  const [quotation, setQuotation] = useState(null);
   const [origin, setOrigin] = useState("India");
-  const [destination, setDestination] = useState("");
+  const [destination, setDestination] = useState('');
   const [productValue, setProductValue] = useState("");
   const [destinationOptions, setDestinationOptions] = useState([]);
   const [weights, setWeights] = useState([""]);
@@ -29,6 +33,28 @@ const ShippingForm = () => {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
   const [submitted, setSubmitted] = useState(false);
+
+  useEffect(() => {
+    // Access quotation data from location state
+    if (location.state && location.state.quotation) {
+      setQuotation(location.state.quotation);
+      // You can set other state variables using quotation data here
+      setDestination(location.state.quotation.dataToStore.formData.destination);
+      setProductValue(location.state.quotation.dataToStore.formData.productValue);
+      setCommodity(location.state.quotation.dataToStore.formData.commodity)
+      setType(location.state.quotation.dataToStore.formData.type)
+      setDutiesTaxes(location.state.quotation.dataToStore.formData.dutiesTaxes)
+      setBoxDimensions(location.state.quotation.dataToStore.formData.boxDimensions)
+      setData(location.state.quotation.dataToStore.formData.data)
+      // setServices(location.state.quotation.dataToStore.formData.serv
+      setStackability(location.state.quotation.dataToStore.formData.stackability)
+      setPacketType(location.state.quotation.dataToStore.formData.packetType)
+      setPieces(location.state.quotation.dataToStore.formData.pieces)
+      setWeights(location.state.quotation.dataToStore.formData.weights)
+      setSelectedOptions(location.state.quotation.dataToStore.formData.selectedOptions)
+      // Set other state variables as needed
+    }
+  }, [location.state]);
 
   const valueAddedServicesOptions = [
     { label: "Fumigation", value: "Fumigation" },
@@ -54,7 +80,7 @@ const ShippingForm = () => {
 
   useEffect(() => {
     // Fetch destination options from API
-    fetch("http://15.207.98.113:5000/api/countries")
+    fetch("http://3.109.157.15:5000/api/countries")
       .then((response) => response.json())
       .then((data) => setDestinationOptions(data))
       .catch((error) =>
@@ -95,9 +121,11 @@ const ShippingForm = () => {
     calculateTotalPackages();
   }, [pieces]);
 
+  const user = JSON.parse(localStorage.getItem('user'));
+
   const fetchData = async () => {
     try {
-      const response = await axios.get("http://15.207.98.113:5000/api/submitForm");
+      const response = await axios.get("http://localhost:5000/api/submitForm");
       let data = response.data; // Assuming the API returns an array of services
       console.log("received", data)
 
@@ -140,7 +168,7 @@ const ShippingForm = () => {
     selectedOptions,
   ]);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e, status) => {
     e.preventDefault();
     const formData = {
       origin,
@@ -155,24 +183,58 @@ const ShippingForm = () => {
       dutiesTaxes,
       commodity,
       selectedOptions,
-      fetchDestinationOptions,
+      status,
     };
-    console.log("Form submitted!", formData);
+    console.log("Form submitted with status:", status);
+    console.log("Form data:", formData); // Log the form data
     try {
       const response = await axios.post(
-        "http://15.207.98.113:5000/api/submitForm",
-        formData
+        "http://localhost:5000/api/submitForm",
+        { ...formData } // Include status in form data
       );
       console.log(response.data);
-      // setwithgst(response.data.withgst);
       setData(response.data);
-      // setShowPriceBreakdown(true);
       setSubmitted(true); // Set submitted state to true after form submission
     } catch (err) {
       console.error(`Error! ${err}`);
     }
+    
+    if (status === 'submit') {
+      return;
+    }
+    if (status === 'confirm' || status === 'draft') {
+      const dataToStore = {
+        formData,
+        data,
+        userEmail: user.userData.email,
+        userUid: user.userData.uid,
+        userWorkspace: user.userData.workspace,
+        status: status === 'confirm' ? 'confirm' : (status === 'draft' ? 'draft' : null), // Set status based on the button pressed
+      };
+
+      try{
+      const response = await axios.post(
+        "http://localhost:5000/api/sendData",
+        { dataToStore } // Include status in form data
+      );
+      console.log(response.data);
+      // setData(response.data);
+      // setSubmitted(true); // Set submitted state to true after form submission
+    } catch (err) {
+      console.error(`Error! ${err}`);
+    }
+    console.log(dataToStore)
+  }
 
     fetchData();
+  };
+ 
+  const handleConfirm = async (e) => {
+    await handleSubmit(e, "confirm");
+  };
+ 
+  const handleDraft = async (e) => {
+    await handleSubmit(e, "draft");
   };
 
   const labelMap = {
@@ -340,7 +402,7 @@ const ShippingForm = () => {
 
   const fetchDestinationOptions = () => {
     // Fetch destination options from API
-    fetch("http://15.207.98.113:5000/api/countries")
+    fetch("http://localhost:5000/api/countries")
       .then((response) => response.json())
       .then((data) => setDestinationOptions(data))
       .catch((error) =>
@@ -1045,10 +1107,35 @@ const ShippingForm = () => {
           </div>
 
           {/* Recalculate button */}
-          <div className="recalculate-button-container">
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              marginTop: "20px",
+            }}
+          >
             <button
               type="button"
-              className="btn btn-primary"
+              className="btn btn-success"
+              style={{ height: "50px", width: "100px", marginRight: "20px" }}
+              onClick={handleConfirm}
+            >
+              Confirm
+            </button>
+ 
+            <button
+              type="button"
+              className="btn btn-yellow"
+              style={{ height: "50px", width: "100px", marginRight: "20px", backgroundColor : "yellow" , borderColor: "yellow" }}
+              onClick={handleDraft}
+            >
+              Draft
+            </button>
+ 
+            <button
+              type="button"
+              className="btn btn-danger"
+              style={{ height: "50px", width: "100px" }}
               onClick={handleRecalculate}
             >
               Recalculate
@@ -1056,7 +1143,7 @@ const ShippingForm = () => {
           </div>
 
           {/* Checkbox and Save Button */}
-          <div className="checkbox-save-container">
+          {/* <div className="checkbox-save-container">
             <input type="checkbox" id="saveFormData" />
             <label htmlFor="saveFormData"></label>
             <button
@@ -1066,7 +1153,7 @@ const ShippingForm = () => {
             >
               Save
             </button>
-          </div>
+          </div> */}
 
           <div class="disclaimer">
             <h2 class="heading">
