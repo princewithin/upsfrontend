@@ -3,7 +3,7 @@ import axios from "axios";
 
 function ManageWorkspace({ onWorkspaceNameChange }) {
   const [formVisible, setFormVisible] = useState(false);
-  const [workspaceName, setWorkspaceName] = useState("Orange Star");
+  // const [workspaceName, setWorkspaceName] = useState("Orange Star");
   const [newWorkspaceName, setNewWorkspaceName] = useState("");
   const [inviteFormVisible, setInviteFormVisible] = useState(false);
   const inviteRef = useRef(null);
@@ -13,33 +13,40 @@ function ManageWorkspace({ onWorkspaceNameChange }) {
   const [submitted, setSubmitted] = useState(false); // Track form submission
   const [status, setStatus] = useState(""); // Track status
   const [users, setUsers] = useState([]); // Array to store users data
+  const user = JSON.parse(localStorage.getItem('user'));
+  const workspace_ = user.userData.workspace;
 
-  useEffect(() => {
-    const fetchWorkspaceName = async () => {
-      try {
-        const response = await fetch("your_api_endpoint_here");
-        const data = await response.json();
-        setWorkspaceName(data.name);
-      } catch (error) {
-        console.error("Error fetching workspace name:", error);
-      }
-    };
+  // useEffect(() => {
+  //   const fetchWorkspaceName = async () => {
+  //     try {
+  //       const response = await fetch("your_api_endpoint_here");
+  //       const data = await response.json();
+  //       setWorkspaceName(data.name);
+  //     } catch (error) {
+  //       console.error("Error fetching workspace name:", error);
+  //     }
+  //   };
 
-    fetchWorkspaceName();
-  }, []);
+  //   fetchWorkspaceName();
+  // }, []);
 
   useEffect(() => {
     // Fetch users data from API
     const fetchUsers = async () => {
       try {
-        const response = await axios.get("your_api_endpoint_here");
+        const response = await axios.get("http://localhost:5000/api/userrole");
         setUsers(response.data); // Update users state with data from API
       } catch (error) {
         console.error("Error fetching users:", error);
       }
     };
 
-    fetchUsers();
+    const interval = setInterval(() => {
+      fetchUsers();
+    }, 1000); // Adjust the interval as needed
+
+    // Clean-up function to clear the interval when the component unmounts
+    return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
@@ -56,11 +63,11 @@ function ManageWorkspace({ onWorkspaceNameChange }) {
     };
   }, []);
 
-  const handleEditClick = () => {
-    setNewWorkspaceName(workspaceName);
-    setFormVisible(true);
-    setInviteFormVisible(false);
-  };
+  // const handleEditClick = () => {
+  //   setNewWorkspaceName(workspaceName);
+  //   setFormVisible(true);
+  //   setInviteFormVisible(false);
+  // };
 
   const handleSaveClick = async () => {
     try {
@@ -72,7 +79,7 @@ function ManageWorkspace({ onWorkspaceNameChange }) {
         body: JSON.stringify({ name: newWorkspaceName }),
       });
       if (response.ok) {
-        setWorkspaceName(newWorkspaceName);
+        // setWorkspaceName(newWorkspaceName);
         setFormVisible(false);
         onWorkspaceNameChange(newWorkspaceName);
       } else {
@@ -105,9 +112,8 @@ function ManageWorkspace({ onWorkspaceNameChange }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
     axios
-      .post("api", { name, email, role })
+      .post("http://localhost:5000/api/userrole", { name, email, role, workspace_ })
       .then((result) => {
         console.log(result);
         setStatus("Invited");
@@ -216,7 +222,7 @@ function ManageWorkspace({ onWorkspaceNameChange }) {
   });
 
   return (
-    <div className="d-flex justify-content-center align-items-center bg-secondary vh-100 position-relative">
+    <div className="d-flex container-fluid justify-content-center align-items-center custom-bg-color position-relative">
       <div
         className="position-absolute"
         style={{ top: "100px", left: "100px", transform: "translateX(-50%)" }}
@@ -225,7 +231,7 @@ function ManageWorkspace({ onWorkspaceNameChange }) {
           className="d-flex align-items-center mb-3"
           style={{ transform: "translateX(20%)" }}
         >
-          <h1 className="m-0" style={{ color: "white" }}>
+          <h1 className="m-0" style={{ color: "black" }}>
             {formVisible ? (
               <input
                 type="text"
@@ -234,7 +240,7 @@ function ManageWorkspace({ onWorkspaceNameChange }) {
                 className="form-control"
               />
             ) : (
-              <span>{workspaceName}</span>
+              <span>{user.userData.workspace}</span>
             )}
           </h1>
           {/* <button
@@ -272,7 +278,7 @@ function ManageWorkspace({ onWorkspaceNameChange }) {
           <div
             className="dropdown-menu show invite-form-container"
             aria-labelledby="dropdownMenuButton"
-            style={{ left: "auto", right: 0 }}
+            style={{ left: "auto", right: 0, backgroundColor:"#ffebcc" }}
             onClick={handleFormClick}
           >
             <div className="form-container p-3" style={{ width: "350px" }}>
@@ -322,6 +328,20 @@ function ManageWorkspace({ onWorkspaceNameChange }) {
                     <option value="others">Others</option>
                   </select>
                 </div>
+                <div className="mb-3">
+                  <label htmlFor="workspace" className="form-label">
+                    <strong>Workspace</strong>
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Enter Workspace"
+                    className="form-control rounded-0"
+                    name="workspace"
+                    autoComplete="off"
+                    value={user.userData.workspace}
+                    required
+                  />
+                </div>
                 <button
                   type="submit"
                   className="btn btn-success w-100 rounded-0 "
@@ -336,6 +356,10 @@ function ManageWorkspace({ onWorkspaceNameChange }) {
 
       <style>
         {`
+          .custom-bg-color {
+            background-color: #cdcdcb;
+          }
+          
           @media (max-width: 768px) {
            .position-absolute {
              left: 10px;
@@ -350,7 +374,7 @@ function ManageWorkspace({ onWorkspaceNameChange }) {
          `}
       </style>
 
-      <div class="mt-5 table-responsive" style={{ paddingBottom: "350px" }}>
+      {/* <div class="mt-5 table-responsive" style="padding-bottom: 350px; position: fixed; top: 100px; left: 0; right: 0; bottom: 0; overflow-y: auto;">
         <h2 style={{ color: "white" }}>Users</h2>
         <table class="table">
           <thead>
@@ -379,7 +403,38 @@ function ManageWorkspace({ onWorkspaceNameChange }) {
             ))}
           </tbody>
         </table>
-      </div>
+      </div> */}
+      <div className="mt-5 table-responsive" style={{ paddingBottom: "350px", position: "absolute", top: "100px" }}>
+  <h2 style={{ color: "black" }}>Users</h2>
+  <table className="table">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Role</th>
+        <th>Status</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      {users.map((user, index) => (
+        <tr key={index}>
+          <td>{user.name}</td>
+          <td>{user.email}</td>
+          <td>{user.role}</td>
+          <td>{submitted ? status : ""}</td>
+          <td>
+            <button className="btn btn-sm btn-primary me-2 btn-resend">
+              Re-send
+            </button>
+            <button className="btn btn-sm btn-danger btn-delete">Delete</button>
+          </td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
+
     </div>
   );
 }

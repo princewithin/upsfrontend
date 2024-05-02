@@ -33,7 +33,8 @@ const ShippingForm = () => {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
   const [submitted, setSubmitted] = useState(false);
-
+  const [id, setid] = useState('')
+  // console.log(location.state._id)
   useEffect(() => {
     // Access quotation data from location state
     if (location.state && location.state.quotation) {
@@ -52,9 +53,11 @@ const ShippingForm = () => {
       setPieces(location.state.quotation.dataToStore.formData.pieces)
       setWeights(location.state.quotation.dataToStore.formData.weights)
       setSelectedOptions(location.state.quotation.dataToStore.formData.selectedOptions)
+      setid(location.state.quotation._id)
       // Set other state variables as needed
     }
   }, [location.state]);
+  
 
   const valueAddedServicesOptions = [
     { label: "Fumigation", value: "Fumigation" },
@@ -184,6 +187,7 @@ const ShippingForm = () => {
       commodity,
       selectedOptions,
       status,
+      id,
     };
     console.log("Form submitted with status:", status);
     console.log("Form data:", formData); // Log the form data
