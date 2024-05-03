@@ -1,6 +1,8 @@
 import React from "react"
 import Login from './login'
 import Signup from "./Signup"
+import SignupForm from "./components/signup1"
+
 import {BrowserRouter, Routes, Route} from 'react-router-dom'
 import DApp from './components/DApp'
 import useAutoLogout from './useAutoLogout';
@@ -15,6 +17,7 @@ function AppContent() {
       <Route path="/login" element={<Login />} />
       <Route path="/" element={<DApp />} />
       <Route path='/shippingForm' element={<ShippingForm />}/>
+      <Route path='/signup1' element={<SignupForm />}/>
     </Routes>
   );
 }
