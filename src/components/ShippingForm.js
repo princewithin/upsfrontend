@@ -4,6 +4,7 @@ import "./ShippingForm.css";
 import axios from "axios";
 import Select from "react-select";
 import {useLocation} from "react-router-dom"
+import swal from "sweetalert";
 
 
 const ShippingForm = () => {
@@ -234,11 +235,17 @@ const ShippingForm = () => {
   };
  
   const handleConfirm = async (e) => {
+    e.preventDefault();
     await handleSubmit(e, "confirm");
+    swal("Quotation Confirmed", "Your quotation is confirmed!", "success");
   };
- 
+
   const handleDraft = async (e) => {
+    e.preventDefault();
     await handleSubmit(e, "draft");
+    swal("Quotation Saved!", "Your quotation is saved as a draft!", "success", {
+      icon: "info", // Change icon to "info" (exclamation mark) for "Draft" message
+    });
   };
 
   const labelMap = {

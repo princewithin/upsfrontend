@@ -1,187 +1,188 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { useNavigate } from 'react-router-dom';
+import DraftDetails from "./DraftDetails";
+import QuotationDetails from "./QuotationDetails";
 import ShippingForm from "./ShippingForm";
-
+import { useNavigate } from 'react-router-dom';
+import { css } from "@emotion/react";
+import { RingLoader } from "react-spinners";
+import "./DashboardComponent.css";
  
 function DashboardComponent() {
   const [orders, setOrders] = useState([]);
-  const [dhlOrders, setDhlOrders] = useState([]);
-  const [fedexOrders, setFedexOrders] = useState([]);
-  const [upsOrders, setUpsOrders] = useState([]);
   const [quotations, setQuotations] = useState([]);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [filter, setFilter] = useState('all');
+  const [filter, setFilter] = useState("all");
+  const [currentComponent, setCurrentComponent] = useState(null);
+  const [selectedQuotation, setSelectedQuotation] = useState(null);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [viewButtonName, setViewButtonName] = useState("View");
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
-
+ 
   useEffect(() => {
-    // Check if the user is logged in (e.g., check if user data exists in localStorage)
-    const user = JSON.parse(localStorage.getItem('user'));
+    const user = JSON.parse(localStorage.getItem("user"));
     setIsLoggedIn(!!user);
-
+ 
     if (isLoggedIn) {
-      fetchData(); // Fetch data only when user is logged in
+      fetchData();
     }
   }, [isLoggedIn]);
-
+ 
+  useEffect(() => {
+    return () => {
+      setCurrentComponent(null);
+      setSelectedQuotation(null);
+    };
+  }, []);
+ 
+  useEffect(() => {
+    const timeout = setTimeout(() => setLoading(false), 2000);
+    return () => clearTimeout(timeout);
+  }, []);
+ 
   const fetchData = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/userData');
+      const response = await axios.get("http://localhost:5000/api/userData");
       setQuotations(response.data);
     } catch (error) {
-      console.error('Error fetching quotations:', error);
+      console.error("Error fetching quotations:", error);
     }
   };
-
-
+ 
   const handleFilterChange = (selectedFilter) => {
     setFilter(selectedFilter);
   };
-
-  const filteredQuotations = filter === 'all' ? quotations : quotations.filter(quotation => quotation.dataToStore.status === filter);
-
  
-  useEffect(() => {
-    // Fetch data from your API endpoint for all orders
-    fetch("api/all-orders")
-      .then((response) => response.json())
-      .then((data) => {
-        // Set all orders to state
-        setOrders(data);
+  const filteredQuotations = filter === "all"
+    ? quotations
+    : quotations.filter(quotation => quotation.dataToStore.status === filter);
  
-        // Filter orders for DHL
-        setDhlOrders(data.filter((order) => order.service === "DHL"));
- 
-        // Filter orders for FedEx
-        setFedexOrders(data.filter((order) => order.service === "FedEx"));
- 
-        // Filter orders for UPS
-        setUpsOrders(data.filter((order) => order.service === "UPS"));
-      })
-      .catch((error) => console.error("Error fetching data:", error));
-  }, []);
-
-  // useEffect(() => {
-  //   // Fetch data from backend when component mounts
-  //   fetchData();
-  // }, []);
-
-  
-
-  const handleRowClick = (quotation) => {
-    // Implement navigation to detailed page here
-    console.log('Clicked row:', quotation);
-    if (quotation.dataToStore.status === 'draft') {
-      // Redirect to the shipping form with form data as props
-      navigate('/shippingForm', { state:{quotation} });
+  const handleViewDetails = (quotation) => {
+    setSelectedQuotation(quotation);
+    if (quotation.dataToStore.status === "draft") {
+      setCurrentComponent("DraftDetails");
+    } else if (quotation.dataToStore.status === "confirm") {
+      setCurrentComponent("QuotationDetails");
     }
+    setDropdownOpen(!dropdownOpen);
+    setViewButtonName(viewButtonName === "View" ? "Hide" : "View");
   };
  
-  // Function to count confirmed orders for a specific service
+  const handleEdit = (quotation) => {
+    navigate('/shippingForm', { state: { quotation } });
+  };
+ 
+  const handleCopy = (quotation) => {
+    navigate('/shippingForm', { state: { quotation: { ...quotation, _id: null, dataToStore: { ...quotation.dataToStore, status: 'draft' } } } });
+  };
+ 
   const countConfirmedOrders = (service) => {
     return orders.filter((order) => order.service === service && order.status === "confirm").length;
   };
  
+  const override = css`
+    display: block;
+    margin: 0 auto;
+    border-color: red;
+  `;
+ 
   return (
-    <div>
-      <div className="container-fluid">
-        <div className="row g-3 my-2">
-          {/* DHL Section */}
-          <div className="col-md-4 p-1">
-            <div
-              className="p-3 bg-secondary shadow-sm d-flex justify-content-around align-items-center rounded"
-              style={{ backgroundColor: "gray", color: "white" }}
-            >
-              <div>
-                <h3 className="fs-2">{countConfirmedOrders("DHL")}</h3>
-                <p className="fs-5">DHL</p>
-              </div>
-              <i className="bi bi-cart-plus p-3 fs-1"></i>
-            </div>
-          </div>
-          {/* FedEx Section */}
-          <div className="col-md-4 p-1">
-            <div
-              className="p-3 bg-secondary shadow-sm d-flex justify-content-around align-items-center rounded"
-              style={{ backgroundColor: "gray", color: "white" }}
-            >
-              <div>
-                <h3 className="fs-2">{countConfirmedOrders("FedEx")}</h3>
-                <p className="fs-5">FedEx</p>
-              </div>
-              <i className="bi bi-currency-dollar p-3 fs-1"></i>
-            </div>
-          </div>
-          {/* UPS Section */}
-          <div className="col-md-4 p-1">
-            <div
-              className="p-3 bg-secondary shadow-sm d-flex justify-content-around align-items-center rounded"
-              style={{ backgroundColor: "gray", color: "white" }}
-            >
-              <div>
-                <h3 className="fs-2">{countConfirmedOrders("UPS")}</h3>
-                <p className="fs-5">UPS</p>
-              </div>
-              <i className="bi bi-truck p-3 fs-1"></i>
-            </div>
-          </div>
+    <div className="container-fluid">
+      {loading ? (
+        <div className="loader-overlay">
+          <RingLoader color={"#ff0000"} loading={true} css={override} size={200} />
         </div>
-        {/* <div>
-          <table className="table caption-top bg-white rounded mt-2">
-            <caption className="text-white fs-4">Recent Orders</caption>
+      ) : (
+        <div>
+          <div className="row g-3 my-2">
+            <div className="col-md-4 p-1">
+              <div className="p-3 bg-secondary shadow-sm d-flex justify-content-around align-items-center rounded" style={{ backgroundColor: "gray", color: "white" }}>
+                <div>
+                  <h3 className="fs-2">{countConfirmedOrders("DHL")}</h3>
+                  <p className="fs-5">DHL</p>
+                </div>
+                <i className="bi bi-cart-plus p-3 fs-1"></i>
+              </div>
+            </div>
+            <div className="col-md-4 p-1">
+              <div className="p-3 bg-secondary shadow-sm d-flex justify-content-around align-items-center rounded" style={{ backgroundColor: "gray", color: "white" }}>
+                <div>
+                  <h3 className="fs-2">{countConfirmedOrders("FedEx")}</h3>
+                  <p className="fs-5">FedEx</p>
+                </div>
+                <i className="bi bi-currency-dollar p-3 fs-1"></i>
+              </div>
+            </div>
+            <div className="col-md-4 p-1">
+              <div className="p-3 bg-secondary shadow-sm d-flex justify-content-around align-items-center rounded" style={{ backgroundColor: "gray", color: "white" }}>
+                <div>
+                  <h3 className="fs-2">{countConfirmedOrders("UPS")}</h3>
+                  <p className="fs-5">UPS</p>
+                </div>
+                <i className="bi bi-truck p-3 fs-1"></i>
+              </div>
+            </div>
+          </div>
+          <h1>Quotations</h1>
+          <div className="button-container">
+            <button onClick={() => handleFilterChange("all")}>All</button>
+            <button onClick={() => handleFilterChange("confirm")}>Confirm</button>
+            <button onClick={() => handleFilterChange("draft")}>Draft</button>
+          </div>
+          <table className="quotation-table">
             <thead>
               <tr>
-                <th scope="col">#</th>
-                <th scope="col">First</th>
-                <th scope="col">Last</th>
-                <th scope="col">Service</th>
-                <th scope="col">Status</th>
+                <th>Origin</th>
+                <th>Destination</th>
+                <th>Product Value</th>
+                <th>Status</th>
+                <th>Action</th>
               </tr>
             </thead>
             <tbody>
-              {orders.map((order, index) => (
-                <tr key={index}>
-                  <th scope="row">{index + 1}</th>
-                  <td>{order.firstName}</td>
-                  <td>{order.lastName}</td>
-                  <td>{order.service}</td>
-                  <td>{order.status}</td>
-                </tr>
+              {filteredQuotations.map((quotation, index) => (
+                <React.Fragment key={quotation._id}>
+                  <tr>
+                    <td>{quotation.dataToStore.formData.origin}</td>
+                    <td>{quotation.dataToStore.formData.destination}</td>
+                    <td>{quotation.dataToStore.formData.productValue}</td>
+                    <td>{quotation.dataToStore.status}</td>
+                    <td>
+                      {quotation.dataToStore.status === "confirm" && (
+                        <React.Fragment>
+                          <button className="view-button" onClick={() => handleViewDetails(quotation)}>{quotation === selectedQuotation && viewButtonName}{quotation !== selectedQuotation && "View"}</button>{" "}
+                          <button className="view-button" onClick={() => handleCopy(quotation)}>Copy</button>{" "}
+                        </React.Fragment>
+                      )}
+                      {quotation.dataToStore.status === "draft" && (
+                        <React.Fragment>
+                          <button className="view-button" onClick={() => handleViewDetails(quotation)}>{quotation === selectedQuotation && viewButtonName}{quotation !== selectedQuotation && "View"}</button>{" "}
+                          <button className="view-button" onClick={() => handleEdit(quotation)}>Edit</button>{" "}
+                        </React.Fragment>
+                      )}
+                    </td>
+                  </tr>
+                  {dropdownOpen && quotation === selectedQuotation && (
+                    <tr className="dropdown-row">
+                      <td colSpan="5">
+                        <div className="dropdown-content">
+                          {currentComponent === "DraftDetails" && (
+                            <DraftDetails quotation={selectedQuotation} />
+                          )}
+                          {currentComponent === "QuotationDetails" && (
+                            <QuotationDetails quotation={selectedQuotation} />
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  )}
+                </React.Fragment>
               ))}
             </tbody>
           </table>
-        </div> */}
-        <div>
-      <h1>Quotations</h1>
-      <div>
-        <button onClick={() => handleFilterChange('all')}>All</button>
-        <button onClick={() => handleFilterChange('confirm')}>Confirm</button>
-        <button onClick={() => handleFilterChange('draft')}>Draft</button>
-      </div>
-      <table>
-        <thead>
-          <tr>
-            <th>Origin</th>
-            <th>Destination</th>
-            <th>Product Value</th>
-            <th>Status</th>
-            {/* Add more table headers as needed */}
-          </tr>
-        </thead>
-        <tbody>
-          {filteredQuotations.map((quotation) => (
-            <tr key={quotation._id} onClick={() => handleRowClick(quotation)}>
-              <td>{quotation.dataToStore.formData.origin}</td>
-              <td>{quotation.dataToStore.formData.destination}</td>
-              <td>{quotation.dataToStore.formData.productValue}</td>
-              <td>{quotation.dataToStore.status}</td>
-              {/* Add more table data as needed */}
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-      </div>
+        </div>
+      )}
     </div>
   );
 }
