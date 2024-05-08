@@ -30,7 +30,8 @@ function DApp() {
                 {toggle && <div className='col-4 col-md-2'></div>}
                 <div className='col bg-white'>
                 <Nav Toggle={Toggle} setCurrentComponent={setCurrentComponent} />
-                    <Home currentComponent={currentComponent} Toggle={Toggle} />
+                    {/* <Home currentComponent={currentComponent} Toggle={Toggle} /> */}
+                    <Home currentComponent={currentComponent} setCurrentComponent={setCurrentComponent} Toggle={Toggle} />
                 </div>
                 
             </div>

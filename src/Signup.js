@@ -15,6 +15,7 @@ function Signup() {
   const [signupSuccess, setSignupSuccess] = useState(false);
   const [emailExists, setEmailExists] = useState(false);
   const [showPasswordPopup, setShowPasswordPopup] = useState(false);
+  const [role, setrole] = useState('')
 
   const navigate = useNavigate();
 
@@ -24,7 +25,7 @@ function Signup() {
     // Validate password before submitting the form
     if (validatePassword(password)) {  // Assuming validatePassword needs a parameter
         try {
-            const user = await signup(email, password, {workspace});
+            const user = await signup(email, password, {workspace, role: "Admin"});
             console.log("User created successfully", user);
 
             // Set success state and clear form inputs
@@ -33,6 +34,7 @@ function Signup() {
             setPassword('');
             setWorkspace('');
             setName('');
+            setrole('')
 
             // Optionally navigate to another route on success
             // navigate('/dashboard');
@@ -139,6 +141,21 @@ const handlePasswordChange = (e) => {
               required
               // readOnly={true}
               // style={{ pointerEvents: "none" }}
+            />
+          </div>
+          <div className="mb-3">
+            <label htmlFor="role">
+              <strong>Role</strong>
+            </label>
+            <input
+              type="text"
+              placeholder="Enter Role"
+              autoComplete="off"
+              name="role"
+              className="form-control rounded-0"
+              value="Admin" // Set the value to "admin"
+              readOnly // Make the input field read-only
+              required
             />
           </div>
           <div className="mb-3">

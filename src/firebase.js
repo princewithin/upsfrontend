@@ -21,23 +21,7 @@ const db = getFirestore(app); // Get auth instance
 export { auth, createUserWithEmailAndPassword, signInWithEmailAndPassword };
  
 export const signup = async (email, password, userData) => {
-  // try {
-  //     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-  //     const user = userCredential.user;
- 
-  //     // Save user data to Firestore
-  //     await addDoc(collection(db, 'users'), {
-  //         uid: user.uid,
-  //         email: user.email,
-  //         workspace: userData.workspace
-  //       //   ...userData // Additional user data (e.g., name, age, etc.)
-  //     });
- 
-  //     return user;
-  // } catch (error) {
-  //     console.error('Signup error:', error.code, error.message);
-  //     throw error;
-  // }
+  
   try {
     // Create user in Firebase Authentication
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
@@ -50,7 +34,9 @@ export const signup = async (email, password, userData) => {
     await setDoc(userDocRef, {
       email: user.email,
       uid: user.uid,
-      workspace: userData.workspace
+      workspace: userData.workspace,
+      role: userData.role,
+      // ...userData // Additional user data (e.g., name, age, etc.)
       // Add any other user data you want to store
     });
 

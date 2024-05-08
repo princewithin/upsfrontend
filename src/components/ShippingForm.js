@@ -7,57 +7,58 @@ import {useLocation} from "react-router-dom"
 import swal from "sweetalert";
 
 
-const ShippingForm = () => {
+const ShippingForm = ({quotation}) => {
   const location = useLocation();
-  const [quotation, setQuotation] = useState(null);
+  // console.log(quotation.quotation._id)
+  // const [quotation, setQuotation] = useState(null);
   const [origin, setOrigin] = useState("India");
-  const [destination, setDestination] = useState('');
-  const [productValue, setProductValue] = useState("");
+  const [destination, setDestination] = useState(quotation?quotation.formData.destination : '');
+  const [productValue, setProductValue] = useState(quotation?quotation.formData.productValue: "");
   const [destinationOptions, setDestinationOptions] = useState([]);
-  const [weights, setWeights] = useState([""]);
-  const [boxDimensions, setBoxDimensions] = useState([
+  const [weights, setWeights] = useState(quotation?[quotation.formData.weights]:[""]);
+  const [boxDimensions, setBoxDimensions] = useState(quotation?quotation.formData.boxDimensions:[
     { length: "", width: "", height: "" },
   ]);
-  const [pieces, setPieces] = useState([""]);
-  const [type, setType] = useState("None");
-  const [packetType, setPacketType] = useState("None");
+  const [pieces, setPieces] = useState(quotation?quotation.formData.pieces: [""]);
+  const [type, setType] = useState(quotation?quotation.formData.type : "None");
+  const [packetType, setPacketType] = useState(quotation?quotation.formData.packetType : "None");
   const [disableType, setDisableType] = useState(false);
   const [disableSubmit, setDisableSubmit] = useState(false);
   const [weightWarning, setWeightWarning] = useState(false);
-  const [stackability, setStackability] = useState("None");
-  const [dutiesTaxes, setDutiesTaxes] = useState("None");
+  const [stackability, setStackability] = useState(quotation?quotation.formData.stackability : "None");
+  const [dutiesTaxes, setDutiesTaxes] = useState(quotation?quotation.formData.dutiesTaxes :"None");
   const [data, setData] = useState(null);
   const [chargeableWeight, setChargeableWeight] = useState(0);
   const [totalPackages, setTotalPackages] = useState(0);
-  const [commodity, setCommodity] = useState("None");
+  const [commodity, setCommodity] = useState( quotation?quotation.formData.commodity : "None");
   const [services, setServices] = useState([]);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
   const [submitted, setSubmitted] = useState(false);
-  const [id, setid] = useState('')
+  const [id, setid] = useState(quotation?quotation.quotation._id:'')
   // console.log(location.state._id)
-  useEffect(() => {
-    // Access quotation data from location state
-    if (location.state && location.state.quotation) {
-      setQuotation(location.state.quotation);
-      // You can set other state variables using quotation data here
-      setDestination(location.state.quotation.dataToStore.formData.destination);
-      setProductValue(location.state.quotation.dataToStore.formData.productValue);
-      setCommodity(location.state.quotation.dataToStore.formData.commodity)
-      setType(location.state.quotation.dataToStore.formData.type)
-      setDutiesTaxes(location.state.quotation.dataToStore.formData.dutiesTaxes)
-      setBoxDimensions(location.state.quotation.dataToStore.formData.boxDimensions)
-      setData(location.state.quotation.dataToStore.formData.data)
-      // setServices(location.state.quotation.dataToStore.formData.serv
-      setStackability(location.state.quotation.dataToStore.formData.stackability)
-      setPacketType(location.state.quotation.dataToStore.formData.packetType)
-      setPieces(location.state.quotation.dataToStore.formData.pieces)
-      setWeights(location.state.quotation.dataToStore.formData.weights)
-      setSelectedOptions(location.state.quotation.dataToStore.formData.selectedOptions)
-      setid(location.state.quotation._id)
-      // Set other state variables as needed
-    }
-  }, [location.state]);
+  // useEffect(() => {
+  //   // Access quotation data from location state
+  //   if (location.state && location.state.quotation) {
+  //     // setQuotation(location.state.quotation);
+  //     // You can set other state variables using quotation data here
+  //     setDestination(location.state.quotation.dataToStore.formData.destination);
+  //     setProductValue(location.state.quotation.dataToStore.formData.productValue);
+  //     setCommodity(location.state.quotation.dataToStore.formData.commodity)
+  //     setType(location.state.quotation.dataToStore.formData.type)
+  //     setDutiesTaxes(location.state.quotation.dataToStore.formData.dutiesTaxes)
+  //     setBoxDimensions(location.state.quotation.dataToStore.formData.boxDimensions)
+  //     setData(location.state.quotation.dataToStore.formData.data)
+  //     // setServices(location.state.quotation.dataToStore.formData.serv
+  //     setStackability(location.state.quotation.dataToStore.formData.stackability)
+  //     setPacketType(location.state.quotation.dataToStore.formData.packetType)
+  //     setPieces(location.state.quotation.dataToStore.formData.pieces)
+  //     setWeights(location.state.quotation.dataToStore.formData.weights)
+  //     setSelectedOptions(location.state.quotation.dataToStore.formData.selectedOptions)
+  //     setid(location.state.quotation._id)
+  //     // Set other state variables as needed
+  //   }
+  // }, [location.state]);
   
 
   const valueAddedServicesOptions = [
@@ -76,7 +77,7 @@ const ShippingForm = () => {
     { label: "Shrink Wrap", value: "Shrink Wrap" },
   ];
 
-  const [selectedOptions, setSelectedOptions] = useState([]);
+  const [selectedOptions, setSelectedOptions] = useState(quotation?quotation.formData.selectedOptions :[]);
 
   const handleSelectChange = (selectedOptions) => {
     setSelectedOptions(selectedOptions);
@@ -126,13 +127,17 @@ const ShippingForm = () => {
   }, [pieces]);
 
   const user = JSON.parse(localStorage.getItem('user'));
-
+  const role = user.userData.role;
   const fetchData = async () => {
     try {
       const response = await axios.get("http://localhost:5000/api/submitForm");
       let data = response.data; // Assuming the API returns an array of services
       console.log("received", data)
-
+      if (data[0].data.Commodity === "Prohibited Goods not permitted to book in any network" || data[0].data.Commodity === "NDPS prohibited drugs - Marketing Substance") {
+        console.log("Needs permission from custom clearance team.");
+        // Perform any action here, for example:
+        alert("Special commodity detected!"); // This will display an alert in the browser
+    }
       // Assuming the API returns data in the format [{withgst, fixchargedhl, ...}, {withgstfedex, fixchargefedex, ...}, {withgstups, fixchargeups, ...}]
       // We need to sort this array based on the GST-inclusive prices
       data = data.sort((a, b) => {
@@ -189,8 +194,11 @@ const ShippingForm = () => {
       selectedOptions,
       status,
       id,
+      role,
     };
+
     console.log("Form submitted with status:", status);
+    console.log(id, "hello")
     console.log("Form data:", formData); // Log the form data
     try {
       const response = await axios.post(
@@ -214,6 +222,7 @@ const ShippingForm = () => {
         userEmail: user.userData.email,
         userUid: user.userData.uid,
         userWorkspace: user.userData.workspace,
+        id,
         status: status === 'confirm' ? 'confirm' : (status === 'draft' ? 'draft' : null), // Set status based on the button pressed
       };
 
@@ -1167,13 +1176,9 @@ const ShippingForm = () => {
           </div> */}
 
           <div class="disclaimer">
-            <h2 class="heading">
-              <strong>Disclaimer : </strong>
-            </h2>
-            <h6 class="subheading">
-              Price Breakdown Show here will not be the final as some extra
-              charges like Receipted and pickup charge will be extra.
-            </h6>
+          <p><strong>Disclaimer : </strong>Price Breakdown Show here will not be the final as some extra
+              charges like Receipted and pickup charge will be extra.</p>
+          if
           </div>
 
           {/* <div className="custom-container">

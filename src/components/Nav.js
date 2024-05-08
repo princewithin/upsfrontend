@@ -123,7 +123,7 @@ import { Link, useNavigate } from "react-router-dom";
  
 function Nav({ Toggle, setCurrentComponent, session }) {
   const [showManageWorkspace, setShowManageWorkspace] = useState(false);
-  const [workspaceName, setWorkspaceName] = useState('');
+  // const [workspaceName, setWorkspaceName] = useState('');
   const workspaceRef = useRef(null);
   const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem('user'));
@@ -183,7 +183,8 @@ function Nav({ Toggle, setCurrentComponent, session }) {
       );
     }
   };
- 
+  const workspaceName = user && user.userData && user.userData.workspace ? user.userData.workspace : "";
+
   return (
     <nav className="navbar navbar-expand-sm navbar-dark bg-transparent">
       <i className="navbar-brand bi bi-justify-left fs-4" onClick={Toggle} style={{ color: 'black' }}></i>
@@ -197,10 +198,10 @@ function Nav({ Toggle, setCurrentComponent, session }) {
           <ul className="navbar-nav mr-3">
             <li className="nav-item dropdown">
               <a className="nav-link dropdown-toggle text-black" href="#" id="dropdownId" onClick={toggleDropdown}>
-                Workspace
+                {workspaceName}
               </a>
               <div ref={workspaceRef} className={`dropdown-menu${showManageWorkspace ? ' show' : ''}`} aria-labelledby="dropdownId">
-                <a className="dropdown-item" href="#">Orange Star</a>
+                <a className="dropdown-item" href="#">{workspaceName}</a>
                 <a className="dropdown-item" href="#" onClick={handleManageWorkspaceClick}>
                   <FontAwesomeIcon icon={faCog}/> Manage Workspace
                 </a>
