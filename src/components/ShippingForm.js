@@ -3,39 +3,42 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "./ShippingForm.css";
 import axios from "axios";
 import Select from "react-select";
-import {useLocation} from "react-router-dom"
+import { useLocation } from "react-router-dom"
 import swal from "sweetalert";
 
 
-const ShippingForm = ({quotation}) => {
+const ShippingForm = ({ quotation }) => {
   const location = useLocation();
   // console.log(quotation.quotation._id)
   // const [quotation, setQuotation] = useState(null);
   const [origin, setOrigin] = useState("India");
-  const [destination, setDestination] = useState(quotation?quotation.formData.destination : '');
-  const [productValue, setProductValue] = useState(quotation?quotation.formData.productValue: "");
+  const [destination, setDestination] = useState(quotation ? quotation.formData.destination : '');
+  const [productValue, setProductValue] = useState(quotation ? quotation.formData.productValue : "");
   const [destinationOptions, setDestinationOptions] = useState([]);
-  const [weights, setWeights] = useState(quotation?[quotation.formData.weights]:[""]);
-  const [boxDimensions, setBoxDimensions] = useState(quotation?quotation.formData.boxDimensions:[
+  const [weights, setWeights] = useState(quotation ? [quotation.formData.weights] : [""]);
+  const [boxDimensions, setBoxDimensions] = useState(quotation ? quotation.formData.boxDimensions : [
     { length: "", width: "", height: "" },
   ]);
-  const [pieces, setPieces] = useState(quotation?quotation.formData.pieces: [""]);
-  const [type, setType] = useState(quotation?quotation.formData.type : "None");
-  const [packetType, setPacketType] = useState(quotation?quotation.formData.packetType : "None");
+  const [pieces, setPieces] = useState(quotation ? quotation.formData.pieces : [""]);
+  const [type, setType] = useState(quotation ? quotation.formData.type : "None");
+  const [packetType, setPacketType] = useState(quotation ? quotation.formData.packetType : "None");
   const [disableType, setDisableType] = useState(false);
   const [disableSubmit, setDisableSubmit] = useState(false);
   const [weightWarning, setWeightWarning] = useState(false);
-  const [stackability, setStackability] = useState(quotation?quotation.formData.stackability : "None");
-  const [dutiesTaxes, setDutiesTaxes] = useState(quotation?quotation.formData.dutiesTaxes :"None");
+  const [stackability, setStackability] = useState(quotation ? quotation.formData.stackability : "None");
+  const [dutiesTaxes, setDutiesTaxes] = useState(quotation ? quotation.formData.dutiesTaxes : "None");
   const [data, setData] = useState(null);
+  const [data1, setData1] = useState(null)
   const [chargeableWeight, setChargeableWeight] = useState(0);
   const [totalPackages, setTotalPackages] = useState(0);
-  const [commodity, setCommodity] = useState( quotation?quotation.formData.commodity : "None");
+  const [commodity, setCommodity] = useState(quotation ? quotation.formData.commodity : "None");
   const [services, setServices] = useState([]);
+  const [services1, setServices1] = useState([])
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
   const [submitted, setSubmitted] = useState(false);
-  const [id, setid] = useState(quotation?quotation.quotation._id:'')
+  const [id, setid] = useState(quotation ? quotation.quotation._id : '')
+  const [originalServices, setOriginalServices] = useState([]);
   // console.log(location.state._id)
   // useEffect(() => {
   //   // Access quotation data from location state
@@ -59,7 +62,7 @@ const ShippingForm = ({quotation}) => {
   //     // Set other state variables as needed
   //   }
   // }, [location.state]);
-  
+
 
   const valueAddedServicesOptions = [
     { label: "Fumigation", value: "Fumigation" },
@@ -77,7 +80,7 @@ const ShippingForm = ({quotation}) => {
     { label: "Shrink Wrap", value: "Shrink Wrap" },
   ];
 
-  const [selectedOptions, setSelectedOptions] = useState(quotation?quotation.formData.selectedOptions :[]);
+  const [selectedOptions, setSelectedOptions] = useState(quotation ? quotation.formData.selectedOptions : []);
 
   const handleSelectChange = (selectedOptions) => {
     setSelectedOptions(selectedOptions);
@@ -101,7 +104,6 @@ const ShippingForm = ({quotation}) => {
       boxDimensions.forEach((dim, index) => {
         const volume = dim.length * dim.width * dim.height;
         const volumetricWeight = volume / 5000;
-        console.log(volumetricWeight);
         const actualweights = parseFloat(weights[index]);
         totalVolumetricWeight += Math.max(volumetricWeight, actualweights);
         // totalChargeableWeight = totalVolumetricWeight * parseInt(pieces[index]);
@@ -130,14 +132,14 @@ const ShippingForm = ({quotation}) => {
   const role = user.userData.role;
   const fetchData = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/api/submitForm");
+      const response = await axios.get("http://3.109.157.15:5000/api/submitForm");
       let data = response.data; // Assuming the API returns an array of services
       console.log("received", data)
       if (data[0].data.Commodity === "Prohibited Goods not permitted to book in any network" || data[0].data.Commodity === "NDPS prohibited drugs - Marketing Substance") {
         console.log("Needs permission from custom clearance team.");
         // Perform any action here, for example:
         alert("Special commodity detected!"); // This will display an alert in the browser
-    }
+      }
       // Assuming the API returns data in the format [{withgst, fixchargedhl, ...}, {withgstfedex, fixchargefedex, ...}, {withgstups, fixchargeups, ...}]
       // We need to sort this array based on the GST-inclusive prices
       data = data.sort((a, b) => {
@@ -148,12 +150,45 @@ const ShippingForm = ({quotation}) => {
       });
 
       setServices(data);
+      setOriginalServices(JSON.parse(JSON.stringify(data)));
       setLoading(false);
     } catch (error) {
       setError(error);
       setLoading(false);
     }
   };
+
+  const fetchData1 = async () => {
+    try {
+      const response = await axios.get("http://3.109.157.15:5000/api/cost");
+      let data = response.data;
+      console.log(data, "hello") // Assuming the API returns an array of services
+      if (data[0].data.Commodity === "Prohibited Goods not permitted to book in any network" || data[0].data.Commodity === "NDPS prohibited drugs - Marketing Substance") {
+        console.log("Needs permission from custom clearance team.");
+        // Perform any action here, for example:
+        alert("Special commodity detected!"); // This will display an alert in the browser
+      }
+      // Assuming the API returns data in the format [{withgst, fixchargedhl, ...}, {withgstfedex, fixchargefedex, ...}, {withgstups, fixchargeups, ...}]
+      // We need to sort this array based on the GST-inclusive prices
+      data = data.sort((a, b) => {
+        // Normalize keys and compare
+        const priceA = a.data.withgst || a.data.withgstfedex || a.data.withgstups;
+        const priceB = b.data.withgst || b.data.withgstfedex || b.data.withgstups;
+        return parseFloat(priceA) - parseFloat(priceB);
+      });
+
+      setServices1(data);
+      setOriginalServices(JSON.parse(JSON.stringify(data)));
+      setLoading(false);
+    } catch (error) {
+      setError(error);
+      setLoading(false);
+    }
+  };
+  useEffect(() => {
+    fetchData();
+    fetchData1();
+  }, []);
 
   useEffect(() => {
     if (
@@ -196,22 +231,32 @@ const ShippingForm = ({quotation}) => {
       id,
       role,
     };
-
-    console.log("Form submitted with status:", status);
-    console.log(id, "hello")
     console.log("Form data:", formData); // Log the form data
     try {
       const response = await axios.post(
-        "http://localhost:5000/api/submitForm",
+        "http://3.109.157.15:5000/api/submitForm",
         { ...formData } // Include status in form data
       );
-      console.log(response.data);
+      // console.log(response.data);
       setData(response.data);
       setSubmitted(true); // Set submitted state to true after form submission
     } catch (err) {
       console.error(`Error! ${err}`);
     }
-    
+
+    try {
+      const response1 = await axios.post(
+        "http://3.109.157.15:5000/api/cost",
+        { ...formData } // Include status in form data
+      );
+      // console.log(response1, "hello");
+      setData1(response1.data);
+      // console.log(data1, "data1")
+      setSubmitted(true); // Set submitted state to true after form submission
+    } catch (err) {
+      console.error(`Error! ${err}`);
+    }
+
     if (status === 'submit') {
       return;
     }
@@ -226,23 +271,24 @@ const ShippingForm = ({quotation}) => {
         status: status === 'confirm' ? 'confirm' : (status === 'draft' ? 'draft' : null), // Set status based on the button pressed
       };
 
-      try{
-      const response = await axios.post(
-        "http://localhost:5000/api/sendData",
-        { dataToStore } // Include status in form data
-      );
-      console.log(response.data);
-      // setData(response.data);
-      // setSubmitted(true); // Set submitted state to true after form submission
-    } catch (err) {
-      console.error(`Error! ${err}`);
+      try {
+        const response = await axios.post(
+          "http://3.109.157.15:5000/api/sendData",
+          { dataToStore } // Include status in form data
+        );
+        console.log(response.data);
+        // setData(response.data);
+        // setSubmitted(true); // Set submitted state to true after form submission
+      } catch (err) {
+        console.error(`Error! ${err}`);
+      }
+      console.log(dataToStore)
     }
-    console.log(dataToStore)
-  }
 
     fetchData();
+    fetchData1();
   };
- 
+
   const handleConfirm = async (e) => {
     e.preventDefault();
     await handleSubmit(e, "confirm");
@@ -259,6 +305,7 @@ const ShippingForm = ({quotation}) => {
 
   const labelMap = {
     fixchargedhl: "Basic Freight",
+    markup: "Markup",
     custommchargedhl: "Customs Clearance Charge",
     oversizeSurChargeDhl: "Additional Handling Surcharges",
     dutitaxdhl: "DDP Charges",
@@ -275,6 +322,7 @@ const ShippingForm = ({quotation}) => {
     v1: "VAS",
 
     fixchargefedex: "Basic Freight",
+    markup1: "Markup",
     custommchargefedex: "Customs Clearance Charge",
     oversizesurchargefedex: "Additional Handling Surcharges",
     dutitaxfedex: "DDP Charges",
@@ -291,6 +339,7 @@ const ShippingForm = ({quotation}) => {
     v2: "VAS",
 
     fixchargeups: "Basic Freight",
+    markup2: "Markup",
     custommchargeups: "Customs Clearance Charge",
     oversizesurchargeups: "Additional Handling Surcharges",
     dutitaxups: "DDP Charges",
@@ -305,7 +354,7 @@ const ShippingForm = ({quotation}) => {
     withgstups: "Total Including GST",
     Commodity: "Commodity",
     v3: "VAS",
-};
+  };
 
   const handleOriginChange = (e) => {
     const value = e.target.value;
@@ -335,6 +384,46 @@ const ShippingForm = ({quotation}) => {
       }
     }
   };
+
+
+  const handleKeyPress = (e, serviceToUpdate, key) => {
+    if (e.key === 'Enter') {
+      handleUpdate(serviceToUpdate, key, e.target.value);
+    }
+  };
+
+  const handleUpdate = (serviceToUpdate, key, updatedValue) => {
+
+    // Find the object in services object that corresponds to the serviceToUpdate
+    const serviceKeys = Object.keys(services);
+
+    for (const serviceKey of serviceKeys) {
+      if (services[serviceKey].service === serviceToUpdate) {
+        // Update the data property of the found service object
+        if (!services[serviceKey].data) {
+          services[serviceKey].data = {};
+        }
+        services[serviceKey].data[key] = updatedValue;
+        console.log(services[serviceKey].data[key])
+        // Perform any calculations or API calls with the updated data
+        // For example, you can call an API to update the data on the server
+        axios.put('http://3.109.157.15:5000/api/submitForm', { serviceToUpdate, key, value: updatedValue })
+          .then(response => {
+            // Handle the response if needed
+            console.log('Data updated successfully', response.data);
+            fetchData()
+          })
+          .catch(error => {
+            // Handle errors if the update fails
+            console.error('Failed to update data:', error);
+          });
+        break; // Exit the loop once the service is found and updated
+      }
+    }
+  };
+
+
+
 
   const handleDisplayLabel = (key) => labelMap[key] || key.replace(/([a-z])([A-Z])/g, '$1 $2');
 
@@ -422,7 +511,7 @@ const ShippingForm = ({quotation}) => {
 
   const fetchDestinationOptions = () => {
     // Fetch destination options from API
-    fetch("http://localhost:5000/api/countries")
+    fetch("http://3.109.157.15:5000/api/countries")
       .then((response) => response.json())
       .then((data) => setDestinationOptions(data))
       .catch((error) =>
@@ -431,7 +520,8 @@ const ShippingForm = ({quotation}) => {
   };
 
   const handleRecalculate = () => {
-    
+
+    setOriginalServices(JSON.parse(JSON.stringify(data)));
     fetchDestinationOptions();
     setSubmitted(false); // Set submitted state to true after form submission
   };
@@ -1080,7 +1170,7 @@ const ShippingForm = ({quotation}) => {
               isMulti
               value={selectedOptions}
               onChange={handleSelectChange}
-              // required
+            // required
             />
           </div>
 
@@ -1101,14 +1191,14 @@ const ShippingForm = ({quotation}) => {
             </button>
 
             <div style={{ marginLeft: "20px" }}></div>
-          <button
-            type="reset"
-            className="btn btn-primary"
-            style={{ height: "50px", width: "100px" }}
-            onClick={handleRefresh}
-          >
-            Refresh
-          </button>
+            <button
+              type="reset"
+              className="btn btn-primary"
+              style={{ height: "50px", width: "100px" }}
+              onClick={handleRefresh}
+            >
+              Refresh
+            </button>
           </div>
         </form>
       )}
@@ -1142,16 +1232,16 @@ const ShippingForm = ({quotation}) => {
             >
               Confirm
             </button>
- 
+
             <button
               type="button"
               className="btn btn-yellow"
-              style={{ height: "50px", width: "100px", marginRight: "20px", backgroundColor : "yellow" , borderColor: "yellow" }}
+              style={{ height: "50px", width: "100px", marginRight: "20px", backgroundColor: "yellow", borderColor: "yellow" }}
               onClick={handleDraft}
             >
               Draft
             </button>
- 
+
             <button
               type="button"
               className="btn btn-danger"
@@ -1176,9 +1266,8 @@ const ShippingForm = ({quotation}) => {
           </div> */}
 
           <div class="disclaimer">
-          <p><strong>Disclaimer : </strong>Price Breakdown Show here will not be the final as some extra
+            <p><strong>Disclaimer : </strong>Price Breakdown Show here will not be the final as some extra
               charges like Receipted and pickup charge will be extra.</p>
-          if
           </div>
 
           {/* <div className="custom-container">
@@ -1206,37 +1295,80 @@ const ShippingForm = ({quotation}) => {
             </div>
           </div> */}
           <div>
-    {services.length > 0 ? (
-      <div className="custom-container">
-        <div className="custom-service-container">
-          {services.map((service, index) => (
-            <div className="custom-service" key={index}>
-              <h4>Total Price {service.service.toUpperCase()}: {service.data.withgst || service.data.withgstfedex || service.data.withgstups}</h4>
-              <div className="custom-breakdown">
-                <h5>Price Breakdown:</h5>
-                <table className="custom-table">
-                  <tbody>
-                    {Object.entries(service.data).map(([key, value], idx) => (
-                      labelMap[key] && ( // Only display if the key is in the labelMap
-                        <tr key={idx}>
-                          <td>{handleDisplayLabel(key)}:</td>
-                          <td>{value}</td>
-                        </tr>
-                      )
-                    ))}
-                  </tbody>
-                </table>
+            {services.length > 0 ? (
+              <div className="custom-container">
+                <div className="custom-service-container">
+                  {services.map((service, index) => (
+                    <div className="custom-service" key={index}>
+                      <h4>Total Price {service.service.toUpperCase()}: {service.data.withgst || service.data.withgstfedex || service.data.withgstups}</h4>
+                      <div className="custom-breakdown">
+                        <h5>Price Breakdown:</h5>
+                        <table className="custom-table">
+                          <tbody>
+                            {Object.entries(service.data).map(([key, value], idx) => (
+                              labelMap[key] && ( // Only display if the key is in the labelMap
+                                handleDisplayLabel(key) === "VAS" || handleDisplayLabel(key) === "Fuel Surcharge (%)" || handleDisplayLabel(key) === "DDP Charges" || handleDisplayLabel(key) === "Customs Clearance Charge" || handleDisplayLabel(key) === "Markup" ? (
+                                  <tr key={idx}>
+                                    <td>{handleDisplayLabel(key)}:</td>
+                                    <td><input type='text' id={key} onKeyPress={(e) => handleKeyPress(e, service.service, key)} defaultValue={value} /></td>
+                                  </tr>
+                                ) : (
+                                  <tr key={idx}>
+                                    <td>{handleDisplayLabel(key)}:</td>
+                                    <td><label id={key}>{value}</label></td>
+                                  </tr>
+                                )
+                              )
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  ))}
+                  { // Start of JSX expression
+                    (role === 'Admin' || role === 'Pricing') && ( // Conditional check
+                      services1.map((service, index) => ( // Map function for rendering multiple components
+                        <div className="custom-service" key={index}>
+                          <h4>Total Price {service.service.toUpperCase()}: {service.data.withgst || service.data.withgstfedex || service.data.withgstups}</h4>
+                          <div className="custom-breakdown">
+                            <h5>Price Breakdown:</h5>
+                            <table className="custom-table">
+                              <tbody>
+                                {Object.entries(service.data).map(([key, value], idx) => (
+                                  labelMap[key] && ( // Only display if the key is in the labelMap
+                                    <tr key={idx}>
+                                      <td>{handleDisplayLabel(key)}:</td>
+                                      <td><label id={key}>{value}</label></td>
+                                    </tr>
+                                  )
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                      ))
+                    )
+                  }
+                  { // Start of JSX expression
+                    (role === 'operations') && ( // Conditional check for the 'operations' role
+                      services1.map((service, index) => ( // Map function for rendering multiple components
+                        <div className="custom-service" key={index}>
+                          <h4>Total Price {service.service.toUpperCase()}:
+                            {service.data.withgst || service.data.withgstfedex || service.data.withgstups}
+                          </h4>
+                        </div>
+                      ))
+                    )
+                  }
+
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    ) : (
-      <div>No data available.</div>
-    )}
-    {loading && <div>Loading...</div>}
-    {error && <div>Error: {error.message}</div>}
-  </div>
+            ) : (
+              <div>No data available.</div>
+            )}
+            {loading && <div>Loading...</div>}
+            
+          </div>
         </div>
       )}
     </div>

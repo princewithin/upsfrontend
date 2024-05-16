@@ -43,6 +43,7 @@ export const signup = async (email, password, userData) => {
     console.log("User signed up successfully:", user);
   } catch (error) {
     console.error("Signup failed:", error);
+    throw(error)
   }
 };
  

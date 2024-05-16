@@ -434,11 +434,14 @@ function ManageWorkspace({ onWorkspaceNameChange }) {
   const [users, setUsers] = useState([]);
   const user = JSON.parse(localStorage.getItem('user'));
   const workspace_ = user.userData.workspace;
+  const isAdmin = user.userData.role === "Admin"
 
   useEffect(() => {
+    if (!isAdmin) return;
+
     const fetchUsers = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/userrole");
+        const response = await axios.get("http://3.109.157.15:5000/api/userrole");
         setUsers(response.data);
       } catch (error) {
         console.error("Error fetching users:", error);
@@ -464,7 +467,7 @@ function ManageWorkspace({ onWorkspaceNameChange }) {
     // This will stop the click event from bubbling up to other elements
     event.stopPropagation();
   };
-  
+
   const handleSaveClick = async () => {
     try {
       const response = await fetch("your_api_endpoint_here", {
@@ -502,7 +505,7 @@ function ManageWorkspace({ onWorkspaceNameChange }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    axios.post("http://localhost:5000/api/userrole", { name, email, role, workspace_ })
+    axios.post("http://3.109.157.15:5000/api/userrole", { name, email, role, workspace_ })
       .then((result) => {
         console.log(result);
         setStatus("Invited");
@@ -513,7 +516,7 @@ function ManageWorkspace({ onWorkspaceNameChange }) {
   };
 
   const handleDelete = (userEmail) => () => {
-    fetch("http://localhost:5000/api/delete-invitation", {
+    fetch("http://3.109.157.15:5000/api/delete-invitation", {
       method: "DELETE",
       body: JSON.stringify({ email: userEmail }),
       headers: { "Content-Type": "application/json" },
@@ -529,7 +532,7 @@ function ManageWorkspace({ onWorkspaceNameChange }) {
   };
 
   const handleResend = (userEmail) => () => {
-    fetch("http://localhost:5000/api/resend-invitation", {
+    fetch("http://3.109.157.15:5000/api/resend-invitation", {
       method: "POST",
       body: JSON.stringify({ email: userEmail }),
       headers: { "Content-Type": "application/json" },
@@ -555,8 +558,19 @@ function ManageWorkspace({ onWorkspaceNameChange }) {
     setUsers(updatedUsers);
   };
 
+  if (!isAdmin) {
+    return (
+      <div className="container text-center mt-5">
+        <h1>Access Denied</h1>
+        <p>Only admin users are allowed.</p>
+      </div>
+    );
+  }
+
+
   return (
     <div className="d-flex container-fluid justify-content-center align-items-center custom-bg-color position-relative">
+    
       <div className="position-absolute" style={{ top: "100px", left: "100px", transform: "translateX(-50%)" }}>
         <div className="d-flex align-items-center mb-3" style={{ transform: "translateX(20%)" }}>
           <h1 className="m-0" style={{ color: "black" }}>
@@ -568,14 +582,14 @@ function ManageWorkspace({ onWorkspaceNameChange }) {
           </h1>
         </div>
       </div>
-
+    
       <div className="dropdown position-absolute" style={{ top: "100px", left: "calc(100% - 120px)" }}>
         <button ref={inviteRef} className="btn btn-sm btn-success dropdown-toggle" type="button" id="dropdownMenuButton" onClick={handleInviteClick}>
           Invite
         </button>
         {inviteFormVisible && (
-          <div className="dropdown-menu show invite-form-container" aria-labelledby="dropdownMenuButton" style={{ left: "auto", right: 0, backgroundColor: "#ffebcc" }} onClick={handleFormClick}>
-            <div className="form-container p-3" style={{ width: "350px" }}>
+          <div className="dropdown-menu show invite-form-container1" aria-labelledby="dropdownMenuButton" style={{ left: "auto", right: 0, backgroundColor: "#ffebcc" }} onClick={handleFormClick}>
+            <div className="form-container1 p-3" style={{ width: "350px" }}>
               <form onSubmit={handleSubmit}>
                 <div className="mb-3">
                   <label htmlFor="name" className="form-label"><strong>Name</strong></label>
@@ -590,8 +604,9 @@ function ManageWorkspace({ onWorkspaceNameChange }) {
                   <select className="form-select rounded-0" onChange={handleRoleChange} autoComplete="off" required>
                     <option value="admin">Admin</option>
                     <option value="sales">Sales</option>
-                    <option value="agent">Agent</option>
-                    <option value="others">Others</option>
+                    <option value="pricing">Pricing</option>
+                    <option value="supervisor">Supervisor</option>
+                    <option value="operations">Operations</option>
                   </select>
                 </div>
                 <button type="submit" className="btn btn-success w-100 rounded-0">Invite</button>
@@ -634,6 +649,7 @@ function ManageWorkspace({ onWorkspaceNameChange }) {
         </table>
       </div>
     </div>
+          
   );
 }
 

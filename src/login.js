@@ -22,7 +22,7 @@ function Login() {
         console.log('User logged in successfully', user);
         localStorage.setItem('user', JSON.stringify(user));
         const userdata = await axios.post(
-          "http://localhost:5000/api/userData",
+          "http://3.109.157.15:5000/api/userData",
           { user }
         );
         console.log(userdata.data);

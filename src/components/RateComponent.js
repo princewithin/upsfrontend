@@ -51,7 +51,7 @@ const RateComponent = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/submitForm");
+        const response = await axios.get("http://3.109.157.15:5000/api/submitForm");
         let data = response.data; 
         data = data.sort((a, b) => {
           const priceA = a.withgst || a.withgstfedex || a.withgstups;
